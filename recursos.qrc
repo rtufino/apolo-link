@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/app.png</file>
+        <file>resources/papelera-de-reciclaje.png</file>
+        <file>resources/salvar.png</file>
+        <file>resources/agregar-usuario.png</file>
+    </qresource>
+</RCC>
