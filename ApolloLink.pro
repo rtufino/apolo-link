@@ -9,15 +9,18 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    agregarcontacto.cpp \
     contacto.cpp \
     main.cpp \
     apollolink.cpp
 
 HEADERS += \
+    agregarcontacto.h \
     apollolink.h \
     contacto.h
 
 FORMS += \
+    agregarcontacto.ui \
     apollolink.ui
 
 # Default rules for deployment.

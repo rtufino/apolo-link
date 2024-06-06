@@ -6,8 +6,10 @@
 #include <QMessageBox>
 #include <QTableWidgetItem>
 #include <QCloseEvent>
+#include <QDebug>
 
 #include "contacto.h"
+#include "agregarcontacto.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ApolloLink; }
@@ -22,15 +24,9 @@ public:
     ~ApolloLink();
 
 private slots:
-    void on_cmbSede_currentIndexChanged(int index);
-    void on_btnAgregar_released();
-
     void on_btnGuardar_released();
 
-    void on_tblContactos_itemChanged(QTableWidgetItem *item);
-
     void closeEvent(QCloseEvent *event);
-
 
     void on_actionEliminar_triggered();
 
@@ -40,13 +36,13 @@ private slots:
 
     void on_inBuscar_returnPressed();
 
+    void on_actionNuevo_triggered();
+
+    void on_tblContactos_itemChanged(QTableWidgetItem *item);
+
 private:
     Ui::ApolloLink *ui;
     const QString ARCHIVO = "agenda.csv";
-
-    QStringList CAMPUS_QUITO = {"Girón", "Sur", "Cayambe"};
-    QStringList CAMPUS_CUENCA = {"El Vecino"};
-    QStringList CAMPUS_GUAYAQUIL = {"Centenario", "María Auxiliadora", "Edificio Administrativo"};
 
     QList<Contacto *> m_contactos;
 
@@ -63,7 +59,6 @@ private:
 
     void cargarContactos();
     void agregarATabla(Contacto *);
-    void limpiar();
     bool guardarContactos();
     int estaRepetida(int ext);
 };

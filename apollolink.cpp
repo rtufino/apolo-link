@@ -8,8 +8,6 @@ ApolloLink::ApolloLink(QWidget *parent)
     ui->setupUi(this);
 
     // setWindowIcon(QIcon("://app.png"));
-    // Iniciando combos
-    on_cmbSede_currentIndexChanged(ui->cmbSede->currentIndex());
     mEstado = Estado::CARGANDO;
     // Configurar la tabla
     QStringList titulo;
@@ -27,24 +25,6 @@ ApolloLink::~ApolloLink()
     delete ui;
 }
 
-
-void ApolloLink::on_cmbSede_currentIndexChanged(int index)
-{
-    ui->cmbCampus->clear();
-    switch (index) {
-    case 0:
-        ui->cmbCampus->addItems(CAMPUS_CUENCA);
-        break;
-    case 1:
-        ui->cmbCampus->addItems(CAMPUS_GUAYAQUIL);
-        break;
-    case 2:
-        ui->cmbCampus->addItems(CAMPUS_QUITO);
-        break;
-    default:
-        break;
-    }
-}
 
 void ApolloLink::cargarContactos()
 {
@@ -79,22 +59,6 @@ void ApolloLink::agregarATabla(Contacto *c)
     ui->tblContactos->setItem(fila, CAMPUS, new QTableWidgetItem(c->campus()));
 
     this->m_contactos.append(c);
-
-    this->limpiar();
-}
-
-void ApolloLink::limpiar()
-{
-    ui->inNombre->clear();
-    ui->cmbSede->setCurrentIndex(0);
-    ui->inExtencion->setValue(0);
-    ui->inCargo->clear();
-    ui->inUnidad->clear();
-    ui->inCelular->clear();
-    ui->inCorreo->clear();
-
-    ui->inNombre->setFocus();
-
 }
 
 bool ApolloLink::guardarContactos()
@@ -125,43 +89,6 @@ int ApolloLink::estaRepetida(int ext)
     }
     return -1;
 }
-
-void ApolloLink::on_btnAgregar_released()
-{
-    QString nombre = ui->inNombre->text();
-    int extencion = ui->inExtencion->value();
-
-    if (nombre.isEmpty() || extencion == 0){
-        QMessageBox::warning(this,"Agregar contacto", "El nombre o extención no pueden estar vacíos");
-        if (nombre.isEmpty())
-            ui->inNombre->setFocus();
-        else
-            ui->inExtencion->setFocus();
-        return;
-    }
-
-    int existe = estaRepetida(extencion);
-    if (existe >= 0){
-        QMessageBox::warning(this,"Agregar contacto", "La extención ya está registrado a otro contacto");
-        ui->tblContactos->selectRow(existe);
-        limpiar();
-        return;
-    }
-
-    QString sede = ui->cmbSede->currentText();
-    QString campus = ui->cmbCampus->currentText();
-    QString cargo = ui->inCargo->text();
-    QString unidad = ui->inUnidad->text();
-    QString celular = ui->inCelular->text();
-    QString correo = ui->inCorreo->text();
-
-    Contacto *c = new Contacto(nombre,sede,campus,cargo,unidad,extencion,celular,correo);
-    mEstado = Estado::AGREGANDO;
-    agregarATabla(c);
-    mEstado = Estado::OK;
-    this->mSinGuardar = true;
-}
-
 
 void ApolloLink::on_btnGuardar_released()
 {
@@ -276,7 +203,7 @@ void ApolloLink::on_btnBuscar_released()
 {
     if (ui->inBuscar->text().isEmpty()) return;
 
-    QString nombre = ui->inBuscar->text();
+    QString texto = ui->inBuscar->text();
 
     ui->tblContactos->selectionModel()->select(ui->tblContactos->selectionModel()->selection(),QItemSelectionModel::Deselect);
 
@@ -284,7 +211,13 @@ void ApolloLink::on_btnBuscar_released()
     bool hallo = false;
     ui->tblContactos->setSelectionMode(QAbstractItemView::MultiSelection);
     foreach (Contacto *c, m_contactos) {
-        if (c->nombre().contains(nombre,Qt::CaseInsensitive)){
+        if (ui->rbtnNombre->isChecked() && c->nombre().contains(texto,Qt::CaseInsensitive)){
+            ui->tblContactos->selectRow(i);
+            hallo = true;
+        }else if (ui->rbtnCargo->isChecked() &&  c->cargo().contains(texto,Qt::CaseInsensitive)){
+            ui->tblContactos->selectRow(i);
+            hallo = true;
+        }else if (ui->rbtnUnidad->isChecked() && c->unidad().contains(texto,Qt::CaseInsensitive)){
             ui->tblContactos->selectRow(i);
             hallo = true;
         }
@@ -294,6 +227,8 @@ void ApolloLink::on_btnBuscar_released()
 
     if (!hallo){
         QMessageBox::information(this,"Buscar contactos","No se encontró contacto");
+    }else{
+
     }
 
 }
@@ -302,5 +237,18 @@ void ApolloLink::on_btnBuscar_released()
 void ApolloLink::on_inBuscar_returnPressed()
 {
     this->on_btnBuscar_released();
+}
+
+
+void ApolloLink::on_actionNuevo_triggered()
+{
+    AgregarContacto ac(this);
+    int res = ac.exec();
+    if (res){
+        mEstado = Estado::AGREGANDO;
+        agregarATabla(ac.contacto());
+        mEstado = Estado::OK;
+        this->mSinGuardar = true;
+    }
 }
 
